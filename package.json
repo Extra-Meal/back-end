@@ -34,6 +34,7 @@
     "bcrypt-ts": "^7.1.0",
     "cors": "^2.8.5",
     "express-async-handler": "^1.2.0",
+    "google-auth-library": "^10.0.0",
     "husky": "^9.1.7",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
