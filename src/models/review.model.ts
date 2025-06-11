@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import { IReview } from "../types/review.type";
+import { IReviewModel } from "../types/review.type";
 
-const reviewSchema = new Schema<IReview>(
+const reviewSchema = new Schema<IReviewModel>(
   {
     product_id: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     description: { type: String, required: true },
@@ -11,10 +11,10 @@ const reviewSchema = new Schema<IReview>(
       min: 1,
       max: 5,
     },
-    user_id: { type: Schema.Types.ObjectId, ref: "User" }, // Optional: to track who submitted the review
+    user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );
 
-const Review = mongoose.model<IReview>("Review", reviewSchema);
+const Review = mongoose.model<IReviewModel>("Review", reviewSchema);
 export default Review;

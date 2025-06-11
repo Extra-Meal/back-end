@@ -12,5 +12,8 @@ export const reviewSchema = z.object({
     .min(1, { message: "Rating must be at least 1" })
     .max(5, { message: "Rating cannot be more than 5" }),
 
-  user_id: z.string({ invalid_type_error: "User ID must be a string (ObjectId)" }),
+  user_id: z.string({
+    invalid_type_error: "User ID must be a string (ObjectId)",
+    required_error: "User ID is required",
+  }),
 });
