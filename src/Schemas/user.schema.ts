@@ -5,9 +5,7 @@ export const userSchema = z.object({
 
   email: z.string({ required_error: "Email is required" }).email({ message: "Invalid email format" }),
 
-  password: z
-    .string({ required_error: "Password is required" })
-    .min(6, { message: "Password must be at least 6 characters long" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters long" }).optional(),
 
   phone: z.string({ invalid_type_error: "Phone must be a string" }).optional(),
 
@@ -16,6 +14,7 @@ export const userSchema = z.object({
   roles: z.array(z.string({ invalid_type_error: "Roles must be an array of strings" })).optional(),
 
   isVerified: z.boolean({ invalid_type_error: "isVerified must be a boolean" }).optional(),
+  isGoogleUser: z.boolean({ invalid_type_error: "isGoogleUser must be a boolean" }).optional(),
 
   cart: z.array(z.string({ invalid_type_error: "Cart must be an array of product IDs" })).optional(),
 

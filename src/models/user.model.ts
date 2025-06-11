@@ -8,12 +8,13 @@ const userSchema = new Schema<IUserModel>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     phone: { type: String },
     address: { type: String },
 
     roles: { type: [String], default: ["user"] },
     isVerified: { type: Boolean, default: false },
+    isGoogleUser: { type: Boolean, default: false },
 
     cart: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Product" }],
@@ -22,7 +23,7 @@ const userSchema = new Schema<IUserModel>(
 );
 
 userSchema.pre<IUserModel>("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password") || !this.password) return next();
   this.password = await hashPassword(this.password);
   next();
 });
