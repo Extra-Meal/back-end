@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { IUser } from "../types/user.type";
+import { IUserModel } from "../types/user.type";
 import { hashPassword } from "../shared/hash";
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUserModel>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -19,11 +19,11 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-userSchema.pre<IUser>("save", async function (next) {
+userSchema.pre<IUserModel>("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await hashPassword(this.password);
   next();
 });
 
-const User = mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model<IUserModel>("User", userSchema);
 export default User;
