@@ -55,7 +55,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     });
     return;
   }
-  if (!user.password && !user.isGoogleUser) {
+  if (!user.password) {
     errorResponse({
       res,
       message: "Invalid email or password",
