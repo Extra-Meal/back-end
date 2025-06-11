@@ -1,8 +1,11 @@
 import express from "express";
-import AuthRouter from "./routes/auth.route";
-import config from "./config/config";
 import cors from "cors";
+import config from "./config/config";
 import connectDB from "./db";
+
+import AuthRouter from "./routes/auth.route";
+import AreaRouter from "./routes/area.route";
+import CategoryRouter from "./routes/categories.route";
 
 const app = express();
 type Request = express.Request;
@@ -21,7 +24,8 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 app.use("/api/auth", AuthRouter);
-
+app.use("/api/areas", AreaRouter);
+app.use("/api/category", CategoryRouter);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
