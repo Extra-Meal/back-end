@@ -1,6 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { IUserModel } from "../types/user.type";
 import { hashPassword } from "../shared/hash";
+import jwt from "jsonwebtoken";
+import config from "../config/config";
 
 const userSchema = new Schema<IUserModel>(
   {
@@ -24,6 +26,24 @@ userSchema.pre<IUserModel>("save", async function (next) {
   this.password = await hashPassword(this.password);
   next();
 });
+
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  const isMatch = (await hashPassword(candidatePassword)) === this.password;
+  return isMatch;
+};
+
+userSchema.methods.generateAuthToken = function () {
+  if (!config.jwt_secret) {
+    throw new Error("JWT_SECRET is not defined");
+  }
+  console.log(this);
+  const token = jwt.sign(
+    { id: this._id, name: this.name, email: this.email, isAdmin: this.isAdmin },
+    config.jwt_secret,
+    { expiresIn: "3d" }
+  );
+  return token;
+};
 
 const User = mongoose.model<IUserModel>("User", userSchema);
 export default User;
