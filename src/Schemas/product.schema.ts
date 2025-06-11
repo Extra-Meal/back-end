@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ProductSchema = z.object({
+export const productSchema = z.object({
   name: z.string().min(1),
   type: z.enum(["ingredient", "kit"]),
   ingredient: z.string().optional(),

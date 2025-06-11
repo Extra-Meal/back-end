@@ -1,7 +1,7 @@
 import { Document, Types } from "mongoose";
 import { z } from "zod";
-import { ProductSchema } from "../Schemas/product.schema";
+import { productSchema } from "../Schemas/product.schema";
 
-export type IProduct = z.infer<typeof ProductSchema>;
+export type IProduct = z.infer<typeof productSchema>;
 
 export interface IProductModel extends Document, IProduct {}

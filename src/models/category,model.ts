@@ -1,14 +1,14 @@
 import mongoose, { Schema } from "mongoose";
-import { ICategory } from "../types/category.type";
+import { ICategoryModel } from "../types/category.type";
 
-const categorySchema = new Schema<ICategory>(
+const categorySchema = new Schema<ICategoryModel>(
   {
     name: { type: String, required: true },
-    url: { type: String, required: true },
-    parent_id: { type: Schema.Types.ObjectId, ref: "Category", default: null },
+    thumbnail: { type: String, required: true },
+    description: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-const Category = mongoose.model<ICategory>("Category", categorySchema);
+const Category = mongoose.model<ICategoryModel>("Category", categorySchema);
 export default Category;

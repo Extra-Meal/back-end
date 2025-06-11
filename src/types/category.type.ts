@@ -1,11 +1,5 @@
-import mongoose, { Document } from "mongoose";
 import { z } from "zod";
 import { categorySchema } from "../Schemas/category.schema";
 
-export interface ICategory extends Document {
-  name: string;
-  url: string;
-  parent_id?: mongoose.Types.ObjectId;
-}
-
-export type CategoryType = z.infer<typeof categorySchema>;
+export type ICategory = z.infer<typeof categorySchema>;
+export interface ICategoryModel extends Document, ICategory {}
