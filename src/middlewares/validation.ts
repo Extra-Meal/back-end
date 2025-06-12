@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { errorResponse } from "../shared/response";
 
 export const validate = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
-  const result = schema.safeParse(req.body);
+  const result = schema.safeParse(req.body.data);
   if (!result.success) {
     const errors = result.error.errors.map((err) => ({
       message: err.message,
@@ -17,6 +17,6 @@ export const validate = (schema: ZodSchema) => (req: Request, res: Response, nex
     });
     return;
   }
-  req.body = result.data;
+  req.body.data = result.data;
   next();
 };

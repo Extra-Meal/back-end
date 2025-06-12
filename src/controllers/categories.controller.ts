@@ -34,7 +34,7 @@ const getAllCategories = asyncHandler(async (req: Request, res: Response) => {
 
 const createCategory = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { name, thumbnail, description } = req.body;
+    const { name, thumbnail, description } = req.body.data;
 
     if (!name || !thumbnail || !description) {
       errorResponse({
@@ -120,7 +120,7 @@ const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
 const updateCategory = asyncHandler(async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, thumbnail, description } = req.body;
+    const { name, thumbnail, description } = req.body.data;
 
     if (!id) {
       errorResponse({

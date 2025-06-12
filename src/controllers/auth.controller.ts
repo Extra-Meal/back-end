@@ -6,7 +6,7 @@ import User from "../models/user.model";
 import config from "../config/config";
 
 const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  const { name, email, password } = req.body.data;
 
   if (!name || !email || !password) {
     errorResponse({
@@ -45,7 +45,15 @@ const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body.data;
+  if (!email || !password) {
+    errorResponse({
+      res,
+      message: "Please provide both email and password",
+      statusCode: 400,
+    });
+    return;
+  }
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user) {
     errorResponse({
@@ -83,7 +91,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
 const client = new OAuth2Client(config.google_client_id);
 const googleLogin = asyncHandler(async (req: Request, res: Response) => {
-  const { idToken } = req.body;
+  const { idToken } = req.body.data;
 
   if (!idToken) {
     errorResponse({
