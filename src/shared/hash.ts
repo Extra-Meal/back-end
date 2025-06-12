@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt-ts";
+import bcrypt from "bcrypt";
 
 const generateSalt = async (): Promise<string> => {
   const saltRounds = 10;
