@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { IUserModel } from "../types/user.type";
-import { hashPassword } from "../shared/hash";
+import { comparePassword, hashPassword } from "../shared/hash";
 import { generateAccessToken } from "../shared/tokens";
 
 const userSchema = new Schema<IUserModel>(
@@ -30,8 +30,7 @@ userSchema.pre<IUserModel>("save", async function (next) {
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  const isMatch = (await hashPassword(candidatePassword)) === this.password;
-  return isMatch;
+  return await comparePassword(candidatePassword, this.password);
 };
 
 userSchema.methods.generateAuthToken = function () {
