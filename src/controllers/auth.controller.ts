@@ -115,6 +115,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     });
     return;
   }
+  // If the user is a Google user, they won't have a password set
   if (!user.password) {
     errorResponse({
       res,
