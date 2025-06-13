@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
-try {
+  try {
     const mailOptions = {
       from: `"Mealify" <${config.nodemailer_email}>`,
       to,
@@ -20,7 +20,9 @@ try {
 
     await transporter.sendMail(mailOptions);
     console.log("Email sent successfully");
+    return true;
   } catch (error) {
     console.error("Error sending email:", error);
+    return false;
   }
 };
