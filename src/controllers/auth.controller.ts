@@ -5,6 +5,9 @@ import { errorResponse, successResponse } from "../shared/response";
 import User from "../models/user.model";
 import config from "../config/config";
 import axios from "axios";
+import { sendEmail } from "../shared/emails/mailService";
+import { verifyEmailMessage } from "../shared/emails/mailTemplates";
+import { generateEmailVerificationToken } from "../shared/tokens";
 
 const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, password } = req.body.data;
@@ -27,21 +30,69 @@ const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
     });
     return;
   }
-
+  const verificationToken = generateEmailVerificationToken();
   const user = new User({
     name,
     email: email.toLowerCase(),
     password,
+    emailVerificationToken: verificationToken,
+    isVerified: false,
   });
 
   await user.save();
+  const isEmailSent = sendEmail(user.email, "Welcome to Mealify", verifyEmailMessage(verificationToken));
+  if (!isEmailSent) {
+    errorResponse({
+      res,
+      message: "Failed to send verification email",
+      statusCode: 500,
+    });
+    return;
+  }
+  const maskedEmail = user.email.replace(/(.{2})(.*)(?=@)/, (_, p1, p2) => p1 + "*".repeat(p2.length));
+  successResponse({
+    res,
+    data: null,
+    message: `User registered successfully. A verification email has been sent to ${maskedEmail}. Please check your inbox to verify your email.`,
+    statusCode: 201,
+  });
+});
+
+const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+  const { verificationToken } = req.body.data;
+
+  if (!verificationToken) {
+    errorResponse({
+      res,
+      message: "Email verification token is required",
+      statusCode: 400,
+    });
+    return;
+  }
+
+  const user = await User.findOne({ emailVerificationToken: verificationToken });
+  if (!user) {
+    errorResponse({
+      res,
+      message: "Invalid or expired email verification token",
+      statusCode: 400,
+    });
+    return;
+  }
+
+  user.isVerified = true;
+  user.emailVerificationToken = null;
   const token = user.generateAuthToken();
+  await user.save();
 
   successResponse({
     res,
-    data: { token, user: { id: user._id, name: user.name, email: user.email } },
-    message: "User registered successfully",
-    statusCode: 201,
+    data: {
+      token,
+      user: { id: user._id, name: user.name, email: user.email, roles: user.roles },
+    },
+    message: "Email verified successfully",
+    statusCode: 200,
   });
 });
 
