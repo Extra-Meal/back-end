@@ -230,4 +230,4 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-export { registerNewUser, loginUser, googleLogin };
+export { registerNewUser, loginUser, googleLogin, verifyEmail };
