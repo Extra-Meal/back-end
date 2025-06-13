@@ -59,7 +59,7 @@ const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { verificationToken } = req.body.data;
+  const verificationToken = req.body.data;
 
   if (!verificationToken) {
     errorResponse({
