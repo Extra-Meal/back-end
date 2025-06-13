@@ -1,3 +1,4 @@
+import e from "express";
 import { z } from "zod";
 
 export const userSchema = z.object({
@@ -13,8 +14,17 @@ export const userSchema = z.object({
 
   roles: z.array(z.string({ invalid_type_error: "Roles must be an array of strings" })).optional(),
 
-  isVerified: z.boolean({ invalid_type_error: "isVerified must be a boolean" }).optional(),
-  isGoogleUser: z.boolean({ invalid_type_error: "isGoogleUser must be a boolean" }).optional(),
+  emailVerificationToken: z
+    .string({
+      invalid_type_error: "Email verification token must be a string",
+    })
+    .nullable()
+    .optional()
+    .default(null),
+
+  // isVerified is used to check if the user has verified their email
+  isVerified: z.boolean({ invalid_type_error: "isVerified must be a boolean" }).optional().default(false),
+  isGoogleUser: z.boolean({ invalid_type_error: "isGoogleUser must be a boolean" }).optional().default(false),
 
   cart: z.array(z.string({ invalid_type_error: "Cart must be an array of product IDs" })).optional(),
 

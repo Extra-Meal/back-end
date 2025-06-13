@@ -1,8 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { IUserModel } from "../types/user.type";
-import { hashPassword } from "../shared/hash";
-import jwt from "jsonwebtoken";
-import config from "../config/config";
+import { comparePassword, hashPassword } from "../shared/hash";
+import { generateAccessToken } from "../shared/tokens";
 
 const userSchema = new Schema<IUserModel>(
   {
@@ -11,8 +10,10 @@ const userSchema = new Schema<IUserModel>(
     password: { type: String },
     phone: { type: String },
     address: { type: String },
-
     roles: { type: [String], default: ["user"] },
+
+    emailVerificationToken: { type: String, default: null },
+
     isVerified: { type: Boolean, default: false },
     isGoogleUser: { type: Boolean, default: false },
 
@@ -29,20 +30,11 @@ userSchema.pre<IUserModel>("save", async function (next) {
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  const isMatch = (await hashPassword(candidatePassword)) === this.password;
-  return isMatch;
+  return await comparePassword(candidatePassword, this.password);
 };
 
 userSchema.methods.generateAuthToken = function () {
-  if (!config.jwt_secret) {
-    throw new Error("JWT_SECRET is not defined");
-  }
-  console.log(this);
-  const token = jwt.sign(
-    { id: this._id, name: this.name, email: this.email, isAdmin: this.isAdmin },
-    config.jwt_secret,
-    { expiresIn: "3d" }
-  );
+  const token = generateAccessToken({ id: this._id, name: this.name, email: this.email, isAdmin: this.isAdmin });
   return token;
 };
 
