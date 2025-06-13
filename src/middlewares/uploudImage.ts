@@ -1,8 +1,7 @@
-import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer, { FileFilterCallback } from "multer";
 import { Request } from "express";
-
+import cloudinary from "../config/cloudinary";
 export function createUploadMiddleware(folderName: string) {
   const storage = new CloudinaryStorage({
     cloudinary,
