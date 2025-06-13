@@ -2,6 +2,7 @@ import e from "express";
 import { z } from "zod";
 
 export const userSchema = z.object({
+  avatar: z.string().url({ message: "Avatar must be a valid URL" }).optional(),
   name: z.string({ required_error: "Name is required" }).min(2, { message: "Name must be at least 2 characters" }),
 
   email: z.string({ required_error: "Email is required" }).email({ message: "Invalid email format" }),
