@@ -10,8 +10,10 @@ const userSchema = new Schema<IUserModel>(
     password: { type: String },
     phone: { type: String },
     address: { type: String },
-
     roles: { type: [String], default: ["user"] },
+
+    emailVerificationToken: { type: String, default: null },
+
     isVerified: { type: Boolean, default: false },
     isGoogleUser: { type: Boolean, default: false },
 
