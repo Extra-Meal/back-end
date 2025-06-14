@@ -53,4 +53,3 @@ export const ingredientTypes = [
   "Vinegar",
   "Wine",
 ] as const;
-
