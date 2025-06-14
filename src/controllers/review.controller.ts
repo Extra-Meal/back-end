@@ -213,10 +213,4 @@ const deleteReview = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-export default {
-  getAllProductReviews,
-  getReviewById,
-  createReview,
-  updateReview,
-  deleteReview,
-};
+export { getAllProductReviews, getReviewById, createReview, updateReview, deleteReview };
