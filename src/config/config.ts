@@ -14,6 +14,10 @@ interface Config {
   nodemailer_email?: string;
   nodemailer_password?: string;
   nodemailer_host?: string;
+  cloudinary_cloud_name?: string;
+  cloudinary_api_key?: string;
+  cloudinary_api_secret?: string;
+  cloudinary_url?: string;
 }
 
 const config: Config = {
@@ -28,6 +32,10 @@ const config: Config = {
   nodemailer_email: process.env.NODEMAILER_EMAIL || "",
   nodemailer_password: process.env.NODEMAILER_PASSWORD || "",
   nodemailer_host: process.env.NODEMAILER_HOST || "",
+  cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME || "",
+  cloudinary_api_key: process.env.CLOUDINARY_API_KEY || "",
+  cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET || "",
+  cloudinary_url: process.env.CLOUDINARY_URL,
 };
 
 export default config;

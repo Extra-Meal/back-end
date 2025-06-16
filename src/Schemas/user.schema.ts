@@ -1,7 +1,14 @@
 import e from "express";
 import { z } from "zod";
+import { cartItemSchema } from "./cart.schema";
+
+export const wishlistItemSchema = z.string({
+  invalid_type_error: "Wishlist must be an array of product IDs",
+  required_error: "Product Id is required",
+});
 
 export const userSchema = z.object({
+  avatar: z.string().url({ message: "Avatar must be a valid URL" }).optional(),
   name: z.string({ required_error: "Name is required" }).min(2, { message: "Name must be at least 2 characters" }),
 
   email: z.string({ required_error: "Email is required" }).email({ message: "Invalid email format" }),
@@ -26,9 +33,9 @@ export const userSchema = z.object({
   isVerified: z.boolean({ invalid_type_error: "isVerified must be a boolean" }).optional().default(false),
   isGoogleUser: z.boolean({ invalid_type_error: "isGoogleUser must be a boolean" }).optional().default(false),
 
-  cart: z.array(z.string({ invalid_type_error: "Cart must be an array of product IDs" })).optional(),
+  cart: z.array(cartItemSchema).optional().default([]),
 
-  wishlist: z.array(z.string({ invalid_type_error: "Wishlist must be an array of product IDs" })).optional(),
+  wishlist: z.array(wishlistItemSchema).optional().default([]),
 });
 
 export const updateUserSchema = userSchema.partial().extend({

@@ -5,6 +5,7 @@ import { generateAccessToken } from "../shared/tokens";
 
 const userSchema = new Schema<IUserModel>(
   {
+    avatar: { type: String, default: "https://res.cloudinary.com/dypwrrsyh/image/upload/v1749835815/3_i9epmg.png" },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
