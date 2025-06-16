@@ -7,3 +7,4 @@ declare module "express-serve-static-core" {
     user?: IUser;
   }
 }
+export {};
