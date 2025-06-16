@@ -1,4 +1,6 @@
 import express, { Request, Response } from "express";
+import { IngredientType } from "./types/ingredient.type";
+import express from "express";
 import cors from "cors";
 import config from "./config/config";
 import connectDB from "./db";
@@ -9,6 +11,11 @@ import CategoryRouter from "./routes/categories.route";
 import UserRouter from "./routes/user.route";
 import CartRouter from "./routes/cart.route";
 import WishlistRouter from "./routes/wishList.route";
+import IngredientRouter from "./routes/ingredient.route";
+import MealRouter from "./routes/meal.route";
+import ReviewRouter from "./routes/review.route";
+import ProductRouter from "./routes/products.route";
+
 import { errorResponse } from "./shared/response";
 
 const app = express();
@@ -31,6 +38,11 @@ app.use("/api/category", CategoryRouter);
 app.use("/api/users", UserRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/wishlist", WishlistRouter);
+app.use("/api/ingredient", IngredientRouter);
+app.use("/api/meal", MealRouter);
+app.use("/api/review", ReviewRouter);
+app.use("/api/products", ProductRouter);
+
 
 // Health check route
 app.get("/", (req: Request, res: Response) => {
