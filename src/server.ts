@@ -42,19 +42,18 @@ app.use("/api/meal", MealRouter);
 app.use("/api/review", ReviewRouter);
 app.use("/api/products", ProductRouter);
 
-
 // Health check route
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
 // Handle 404 errors
-app.get("*", (req: Request, res: Response) => {
+app.use((req: Request, res: Response) => {
   errorResponse({
     res,
-    message: "Route not found",
+    message: "Resource not found",
     statusCode: 404,
-  })
+  });
 });
 
 app.listen(port, () => {
