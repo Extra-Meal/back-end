@@ -138,7 +138,7 @@ const updateReview = asyncHandler(async (req: Request, res: Response) => {
       });
       return;
     }
-    if (req.user?._id.toString() !== review.user_id.toString()) {
+    if (req.user?._id?.toString() !== review.user_id.toString()) {
       errorResponse({
         res,
         message: "You are not authorized to update this review",
@@ -188,7 +188,7 @@ const deleteReview = asyncHandler(async (req: Request, res: Response) => {
       });
       return;
     }
-    if (req.user?._id.toString() !== review.user_id.toString()) {
+    if (req.user?._id?.toString() !== review.user_id.toString()) {
       errorResponse({
         res,
         message: "You are not authorized to delete this review",

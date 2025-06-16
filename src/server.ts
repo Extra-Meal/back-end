@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
 import { IngredientType } from "./types/ingredient.type";
-import express from "express";
 import cors from "cors";
 import config from "./config/config";
 import connectDB from "./db";
