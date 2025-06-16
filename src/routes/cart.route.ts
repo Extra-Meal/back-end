@@ -8,18 +8,20 @@ import {
   updateCartItemQuantity,
 } from "../controllers/cart.controller";
 import { cartItemSchema } from "../Schemas/cart.schema";
+import { rolesMiddleware } from "../middlewares/roles";
+import { authMiddleware } from "../middlewares/auth";
 
 const router = Router();
 
 // Route to get all items in the cart
-router.get("/", getCartItems);
+router.get("/", authMiddleware, rolesMiddleware("user"), getCartItems);
 // Route to add an item to the cart
-router.post("/", validate(cartItemSchema), addToCart);
+router.post("/", authMiddleware, rolesMiddleware("user"), validate(cartItemSchema), addToCart);
 // Route to remove an item from the cart
-router.delete("/", removeFromCart);
+router.delete("/", authMiddleware, rolesMiddleware("user"), removeFromCart);
 // Route to clear the cart
-router.delete("/clear", clearCart);
+router.delete("/clear", authMiddleware, rolesMiddleware("user"), clearCart);
 // Route to update the quantity of an item in the cart
-router.patch("/", validate(cartItemSchema), updateCartItemQuantity);
+router.patch("/", authMiddleware, rolesMiddleware("user"), validate(cartItemSchema), updateCartItemQuantity);
 
 export default router;
