@@ -13,7 +13,7 @@ const aiChatHandler = asyncHandler(async (req: Request, res: Response) => {
       system: SYSTEM_PROMPT,
       messages,
       tools,
-      maxSteps: 5,
+      maxSteps: 20,
       toolCallStreaming: true,
     });
 
