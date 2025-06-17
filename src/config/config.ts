@@ -18,6 +18,7 @@ interface Config {
   cloudinary_api_key?: string;
   cloudinary_api_secret?: string;
   cloudinary_url?: string;
+  gemini_api_key?: string;
 }
 
 const config: Config = {
@@ -36,6 +37,7 @@ const config: Config = {
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY || "",
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET || "",
   cloudinary_url: process.env.CLOUDINARY_URL,
+  gemini_api_key: process.env.GEMINI_API_KEY || "",
 };
 
 export default config;

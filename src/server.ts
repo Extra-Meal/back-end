@@ -14,6 +14,7 @@ import IngredientRouter from "./routes/ingredient.route";
 import MealRouter from "./routes/meal.route";
 import ReviewRouter from "./routes/review.route";
 import ProductRouter from "./routes/products.route";
+import ChatRouter from "./routes/chat.route";
 
 import { errorResponse } from "./shared/response";
 
@@ -41,6 +42,7 @@ app.use("/api/ingredient", IngredientRouter);
 app.use("/api/meal", MealRouter);
 app.use("/api/review", ReviewRouter);
 app.use("/api/products", ProductRouter);
+app.use("/api/chat", ChatRouter);
 
 // Health check route
 app.get("/", (req: Request, res: Response) => {
