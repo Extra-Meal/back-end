@@ -5,80 +5,8 @@ import Category from "../models/category.model";
 import { IngredientModel } from "../models/ingredient.model";
 import Meal from "../models/meal.model";
 import { Product } from "../models/product.model";
-export const tools = {
-  getMealDetails: tool({
-    description:
-      "Fetch full information about a specific meal, including recipe steps, ingredients, and the linked product kit if available.",
-    parameters: z.object({
-      mealId: z.string().describe("The ID of the meal to fetch."),
-    }),
-    execute: getMealDetails,
-  }),
-
-  listMeals: tool({
-    description: "List meals with optional filters for category, area (cuisine), or a search string in the meal name.",
-    parameters: z.object({
-      categoryId: z.string().describe("Filter by category ID (optional).").optional(),
-      areaId: z.string().describe("Filter by cuisine area ID (optional).").optional(),
-      search: z.string().describe("Search text to match meal names (optional).").optional(),
-    }),
-    execute: listMeals,
-  }),
-
-  findMealsByIngredients: tool({
-    description: "Suggest meals based on a list of ingredient IDs. Returns meals ranked by how many ingredients match.",
-    parameters: z.object({
-      ingredientIds: z.array(z.string()).describe("Array of ingredient IDs the user has."),
-    }),
-    execute: findMealsByIngredients,
-  }),
-
-  getIngredientDetails: tool({
-    description:
-      "Fetch detailed information about a specific ingredient, including its name, description, image, type, and store product info.",
-    parameters: z.object({
-      ingredientId: z.string().describe("The ID of the ingredient to fetch."),
-    }),
-    execute: getIngredientDetails,
-  }),
-
-  listIngredients: tool({
-    description:
-      "List ingredients optionally filtered by search term or type (e.g., 'Spice', 'Vegetable'). Includes linked product info.",
-    parameters: z.object({
-      search: z.string().describe("Text to match in ingredient names (optional).").optional(),
-      type: z.string().describe("Ingredient type to filter by (optional).").optional(),
-    }),
-    execute: listIngredients,
-  }),
-
-  getCategories: tool({
-    description: "Get all available meal categories, including their names and thumbnails.",
-    parameters: z.object({}),
-    execute: getCategories,
-  }),
-
-  getAreas: tool({
-    description: "Get all available cuisine areas (e.g., Italian, Egyptian, Japanese).",
-    parameters: z.object({}),
-    execute: getAreas,
-  }),
-
-  getAllProducts: tool({
-    description: "Get all Available products(meals or ingredients) with their prices and stoke count",
-    parameters: z.object({}),
-    execute: getAllProducts,
-  }),
-
-  getProductsByType: tool({
-    description:
-      "Get all Available products based on their type (kit(meals) or ingredients) with their prices and stoke count",
-    parameters: z.object({
-      type: z.enum(["kit", "ingredient"]),
-    }),
-    execute: getAllProductsByType,
-  }),
-};
+import { formatIngredientCard, formatKitCard, formatMealCard } from "./helper";
+import { IMeal } from "../types/meal.type";
 
 // 1. Get full meal details
 export async function getMealDetails(args: { mealId: string }, _options?: any) {
@@ -260,3 +188,118 @@ export async function getAllProductsByType({ type }: { type: "ingredient" | "kit
     meal: type === "kit" ? product.meal : null,
   }));
 }
+export const getMealDetailsFormatted = tool({
+  description: "Get formatted information about a meal",
+  parameters: z.object({
+    mealId: z.string(),
+  }),
+  execute: async ({ mealId }: { mealId: string }) => {
+    const meal = await Meal.findById(mealId).populate("category").populate("area").populate("kitProduct");
+    if (!meal) throw new Error("Meal not found");
+    // Ensure the types match what formatMealCard expects
+    return formatMealCard(meal);
+  },
+});
+
+export const getIngredientDetailsFormatted = tool({
+  description: "Get formatted information about an ingredient",
+  parameters: z.object({
+    ingredientId: z.string(),
+  }),
+  execute: async ({ ingredientId }: { ingredientId: string }) => {
+    const ingredient = await IngredientModel.findById(ingredientId).lean();
+    if (!ingredient) throw new Error("Ingredient not found");
+    return formatIngredientCard({ ...ingredient, _id: ingredient._id.toString() });
+  },
+});
+
+export const getKitDetailsFormatted = tool({
+  description: "Get formatted information about a product kit",
+  parameters: z.object({
+    productId: z.string(),
+  }),
+  execute: async ({ productId }: { productId: string }) => {
+    const product = await Product.findById(productId).populate("meal").lean();
+    if (!product) throw new Error("Product not found");
+    const meal = product.meal as IMeal;
+    return formatKitCard(product);
+  },
+});
+
+export const tools = {
+  getMealDetails: tool({
+    description:
+      "Fetch full information about a specific meal, including recipe steps, ingredients, and the linked product kit if available.",
+    parameters: z.object({
+      mealId: z.string().describe("The ID of the meal to fetch."),
+    }),
+    execute: getMealDetails,
+  }),
+
+  listMeals: tool({
+    description: "List meals with optional filters for category, area (cuisine), or a search string in the meal name.",
+    parameters: z.object({
+      categoryId: z.string().describe("Filter by category ID (optional).").optional(),
+      areaId: z.string().describe("Filter by cuisine area ID (optional).").optional(),
+      search: z.string().describe("Search text to match meal names (optional).").optional(),
+    }),
+    execute: listMeals,
+  }),
+
+  findMealsByIngredients: tool({
+    description: "Suggest meals based on a list of ingredient IDs. Returns meals ranked by how many ingredients match.",
+    parameters: z.object({
+      ingredientIds: z.array(z.string()).describe("Array of ingredient IDs the user has."),
+    }),
+    execute: findMealsByIngredients,
+  }),
+
+  getIngredientDetails: tool({
+    description:
+      "Fetch detailed information about a specific ingredient, including its name, description, image, type, and store product info.",
+    parameters: z.object({
+      ingredientId: z.string().describe("The ID of the ingredient to fetch."),
+    }),
+    execute: getIngredientDetails,
+  }),
+
+  listIngredients: tool({
+    description:
+      "List ingredients optionally filtered by search term or type (e.g., 'Spice', 'Vegetable'). Includes linked product info.",
+    parameters: z.object({
+      search: z.string().describe("Text to match in ingredient names (optional).").optional(),
+      type: z.string().describe("Ingredient type to filter by (optional).").optional(),
+    }),
+    execute: listIngredients,
+  }),
+
+  getCategories: tool({
+    description: "Get all available meal categories, including their names and thumbnails.",
+    parameters: z.object({}),
+    execute: getCategories,
+  }),
+
+  getAreas: tool({
+    description: "Get all available cuisine areas (e.g., Italian, Egyptian, Japanese).",
+    parameters: z.object({}),
+    execute: getAreas,
+  }),
+
+  getAllProducts: tool({
+    description: "Get all Available products(meals or ingredients) with their prices and stoke count",
+    parameters: z.object({}),
+    execute: getAllProducts,
+  }),
+
+  getProductsByType: tool({
+    description:
+      "Get all Available products based on their type (kit(meals) or ingredients) with their prices and stoke count",
+    parameters: z.object({
+      type: z.enum(["kit", "ingredient"]),
+    }),
+    execute: getAllProductsByType,
+  }),
+  getMealDetailsFormatted,
+  getIngredientDetailsFormatted,
+  getKitDetailsFormatted,
+};

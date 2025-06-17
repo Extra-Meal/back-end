@@ -49,6 +49,11 @@ You have access to these read-only tools:
 • getProductByType({ type })
   → Lists products by type (ingredient or meal kit) with their prices and more.
 
+- \`getMealDetails\`: Show full details about a meal (instructions, ingredients, etc.).
+- \`getProductDetails\`: Show detailed information about a product (kit or ingredient).
+- \`getIngredientDetails\`: Show detailed info about a specific ingredient.
+
+the three previous Tool results are returned as **Markdown markup** — use them directly in chat for rich formatting (bold text, links, images, lists).
 
 
 Behavior:
