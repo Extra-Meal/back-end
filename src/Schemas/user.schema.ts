@@ -36,6 +36,10 @@ export const userSchema = z.object({
   cart: z.array(cartItemSchema).optional().default([]),
 
   wishlist: z.array(wishlistItemSchema).optional().default([]),
+  lastLogin: z.date({ invalid_type_error: "Last login must be a date" }).optional(),
+  isActive: z.boolean({ invalid_type_error: "isActive must be a boolean" }).optional().default(true),
+  orderCount: z.number({ invalid_type_error: "Order count must be a number" }).optional().default(0),
+  totalSpent: z.number({ invalid_type_error: "Total spent must be a number" }).optional().default(0),
 });
 
 export const updateUserSchema = userSchema.partial().extend({

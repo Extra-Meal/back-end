@@ -19,6 +19,10 @@ const mealSchema = new Schema<IMealModel>({
     },
   ],
   kitProduct: { type: Schema.Types.ObjectId, ref: "Product" }, // references the "kit" version of the meal
+  popularityScore: { type: Number, default: 0 },
+  preparationTime: { type: Number }, // in minutes
+  difficulty: { type: String, enum: ["easy", "medium", "hard"], default: "medium" },
+  available: { type: Boolean, default: true },
 });
 
 const Meal = mongoose.model("Meal", mealSchema);

@@ -11,6 +11,7 @@ const ingredientSchema = new Schema<IIngredientModel>({
     enum: ingredientTypes,
     default: "Other",
   },
+  availability: { type: Boolean, default: true },
 });
 
 export const IngredientModel = model<IIngredientModel>("Ingredient", ingredientSchema);

@@ -6,4 +6,5 @@ export const IngredientSchema = z.object({
   description: z.string(),
   image: z.string().url(),
   type: z.enum(ingredientTypes).default("Other"),
+  availability: z.boolean().default(true),
 });
