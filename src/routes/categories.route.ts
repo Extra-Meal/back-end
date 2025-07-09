@@ -13,17 +13,11 @@ import { rolesMiddleware } from "../middlewares/roles";
 import { authMiddleware } from "../middlewares/auth";
 const router = express.Router();
 
-router.get("/category", getAllCategories);
-router.post("/category", authMiddleware, rolesMiddleware("admin"), validate(categorySchema), createCategory);
-router.get("/category/name/:name", getCategoryByName);
-router.get("/category/:id", getCategoryById);
-router.patch(
-  "/category/:id",
-  authMiddleware,
-  rolesMiddleware("admin"),
-  validate(categorySchema.partial()),
-  updateCategory
-);
-router.delete("/category/:id", authMiddleware, rolesMiddleware("admin"), deleteCategory);
+router.get("/", getAllCategories);
+router.post("/", authMiddleware, rolesMiddleware("admin"), validate(categorySchema), createCategory);
+router.get("/name/:name", getCategoryByName);
+router.get("/:id", getCategoryById);
+router.patch("/:id", authMiddleware, rolesMiddleware("admin"), validate(categorySchema.partial()), updateCategory);
+router.delete("/:id", authMiddleware, rolesMiddleware("admin"), deleteCategory);
 
 export default router;

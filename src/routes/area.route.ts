@@ -7,9 +7,9 @@ import { rolesMiddleware } from "../middlewares/roles";
 import { authMiddleware } from "../middlewares/auth";
 const router = express.Router();
 
-router.get("/area", getAllAreas);
-router.post("/area", validate(areaSchema), createArea);
-router.delete("/area/:id", authMiddleware, rolesMiddleware("admin"), deleteArea);
-router.patch("/area/:id", authMiddleware, rolesMiddleware("admin"), validate(areaSchema), updateArea);
+router.get("/", getAllAreas);
+router.post("/", validate(areaSchema), createArea);
+router.delete("/:id", authMiddleware, rolesMiddleware("admin"), deleteArea);
+router.patch("/:id", authMiddleware, rolesMiddleware("admin"), validate(areaSchema), updateArea);
 
 export default router;
