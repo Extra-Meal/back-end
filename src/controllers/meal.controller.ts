@@ -38,12 +38,13 @@ const getAllMeals = asyncHandler(async (req: Request, res: Response) => {
 
   try {
     const meals = await Meal.find(filter)
+      .populate("ingredients.ingredient", "name -_id")
       .populate("category", "name -_id")
       .populate("area", "name -_id")
-      .populate("ingredients.ingredient", "name -_id")
-      .populate("kitProduct", "name -_id")
+      .populate("kitProduct", "name -_id price stock")
       .skip(skip)
       .limit(limit);
+    console.log("🚀 ~ getAllMeals ~ meals:", meals[0].ingredients[0].ingredient);
     if (!meals || meals.length === 0) {
       errorResponse({
         res,
