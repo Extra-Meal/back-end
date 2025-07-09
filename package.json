@@ -41,6 +41,7 @@
     "bcrypt-ts": "^7.1.0",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "express-async-handler": "^1.2.0",
     "google-auth-library": "^10.0.0",
     "husky": "^9.1.7",

@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import { IngredientType } from "./types/ingredient.type";
 import cors from "cors";
 import config from "./config/config";
 import connectDB from "./db";
@@ -15,6 +14,7 @@ import MealRouter from "./routes/meal.route";
 import ReviewRouter from "./routes/review.route";
 import ProductRouter from "./routes/products.route";
 import ChatRouter from "./routes/chat.route";
+import DashboardRouter from "./routes/dashboard.route";
 
 import { errorResponse } from "./shared/response";
 
@@ -43,6 +43,7 @@ app.use("/api/meal", MealRouter);
 app.use("/api/review", ReviewRouter);
 app.use("/api/products", ProductRouter);
 app.use("/api/chat", ChatRouter);
+app.use("/api/dashboard", DashboardRouter);
 
 // Health check route
 app.get("/", (req: Request, res: Response) => {

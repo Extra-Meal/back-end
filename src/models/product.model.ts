@@ -10,6 +10,11 @@ const productSchema = new Schema<IProductModel>({
   stock: { type: Number, default: 0 },
   image: String,
   visible: { type: Boolean, default: true },
+  sold: { type: Number, default: 0 },
+  views: { type: Number, default: 0 },
+  discount: { type: Number, default: 0 }, // percent or absolute
+  ratingAverage: { type: Number, default: 0 },
+  ratingCount: { type: Number, default: 0 },
 });
 
 export const Product = model<IProductModel>("Product", productSchema);

@@ -20,6 +20,10 @@ const userSchema = new Schema<IUserModel>(
 
     cart: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    lastLogin: { type: Date },
+    isActive: { type: Boolean, default: true },
+    orderCount: { type: Number, default: 0 },
+    totalSpent: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

@@ -19,4 +19,8 @@ export const MealInputSchema = z.object({
     )
     .default([]),
   kitProduct: ObjectIdSchema.optional(),
+  popularityScore: z.number().default(0),
+  preparationTime: z.number().optional(), // in minutes
+  difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
+  available: z.boolean().default(true),
 });

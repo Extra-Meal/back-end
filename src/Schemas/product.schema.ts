@@ -9,4 +9,9 @@ export const productSchema = z.object({
   stock: z.number().default(0),
   image: z.string().url().optional(),
   visible: z.boolean().default(true),
+  sold: z.number().default(0),
+  views: z.number().default(0),
+  discount: z.number().default(0), // percent or absolute
+  ratingAverage: z.number().default(0),
+  ratingCount: z.number().default(0),
 });
