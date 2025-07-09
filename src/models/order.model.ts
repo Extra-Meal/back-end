@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IOrderModel } from "../types/order.type";
 const orderSchema = new Schema<IOrderModel>(
   {
@@ -20,3 +20,6 @@ const orderSchema = new Schema<IOrderModel>(
   },
   { timestamps: true }
 );
+
+const Order = mongoose.model<IOrderModel>("Order", orderSchema);
+export default Order;
