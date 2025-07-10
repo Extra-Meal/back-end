@@ -1,10 +1,7 @@
-import { I } from "react-router/dist/development/route-data-C12CLHiN";
 import config from "../config/config";
-import { IArea } from "../types/area.type";
-import { ICategory } from "../types/category.type";
 import { IIngredient } from "../types/ingredient.type";
-import { IMeal, IMealModel } from "../types/meal.type";
-import { IProduct, IProductModel } from "../types/product.type";
+import { IMealModel } from "../types/meal.type";
+import { IProductModel } from "../types/product.type";
 
 export function formatMealCard(meal: IMealModel) {
   return `
