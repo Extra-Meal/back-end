@@ -21,9 +21,6 @@ const uploader = createUploadMiddleware("users");
 // Route to get all users
 router.get("/", authMiddleware, rolesMiddleware("admin"), getAllUsers);
 
-// Route to get user by ID
-router.get("/:id", authMiddleware, rolesMiddleware("admin"), getUserById);
-
 // Route to get user by email
 router.get("/email/:email", authMiddleware, rolesMiddleware("admin"), getUserByEmail);
 
@@ -31,7 +28,8 @@ router.get("/email/:email", authMiddleware, rolesMiddleware("admin"), getUserByE
 router.get("/me", authMiddleware, rolesMiddleware("user", "admin"), getMydata);
 // Route to update user roles
 router.patch("/:id/roles", authMiddleware, rolesMiddleware("admin"), updateUserRoles);
-
+// Route to get user by ID
+router.get("/:id", authMiddleware, rolesMiddleware("admin"), getUserById);
 // Route to update user data
 router.patch("/:id", authMiddleware, ownerMiddleware, uploader.single("avatar"), validate(userSchema), updateUser);
 

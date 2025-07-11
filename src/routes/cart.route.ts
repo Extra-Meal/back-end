@@ -18,10 +18,10 @@ router.get("/", authMiddleware, rolesMiddleware("user"), getCartItems);
 // Route to add an item to the cart
 router.post("/", authMiddleware, rolesMiddleware("user"), validate(cartItemSchema), addToCart);
 // Route to remove an item from the cart
-router.delete("/", authMiddleware, rolesMiddleware("user"), removeFromCart);
 // Route to clear the cart
 router.delete("/clear", authMiddleware, rolesMiddleware("user"), clearCart);
 // Route to update the quantity of an item in the cart
 router.patch("/", authMiddleware, rolesMiddleware("user"), validate(cartItemSchema), updateCartItemQuantity);
+router.delete("/:productId", authMiddleware, rolesMiddleware("user"), removeFromCart);
 
 export default router;
