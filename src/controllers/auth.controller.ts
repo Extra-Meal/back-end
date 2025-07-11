@@ -215,6 +215,7 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   if (!user) {
     user = new User({
       name,
+      avatar: picture,
       email: email.toLowerCase(),
       isGoogleUser: true,
       isVerified: true,
@@ -225,7 +226,16 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   const token = user.generateAuthToken();
   successResponse({
     res,
-    data: { token, user: { id: user._id, name: user.name, email: user.email } },
+    data: {
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        isAdmin: user?.roles?.includes("admin") || false,
+      },
+    },
     message: "User logged in successfully",
     statusCode: 200,
   });
