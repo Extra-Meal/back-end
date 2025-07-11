@@ -39,7 +39,13 @@ userSchema.methods.comparePassword = async function (candidatePassword: string):
 };
 
 userSchema.methods.generateAuthToken = function () {
-  const token = generateAccessToken({ id: this._id, name: this.name, email: this.email, isAdmin: this.isAdmin });
+  const token = generateAccessToken({
+    _id: this._id,
+    name: this.name,
+    email: this.email,
+    isAdmin: this.isAdmin,
+    roles: this.roles,
+  });
   return token;
 };
 
