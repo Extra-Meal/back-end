@@ -225,15 +225,6 @@ const getMydata = asyncHandler(async (req, res) => {
   try {
     const userId = req.user?._id;
 
-    if (!userId) {
-      errorResponse({
-        res,
-        message: "User ID is required",
-        statusCode: 400,
-      });
-      return;
-    }
-
     const user = await User.findById(userId);
 
     if (!user) {

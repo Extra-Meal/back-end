@@ -2,10 +2,30 @@ import e, { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { errorResponse, successResponse } from "../shared/response";
 import { IngredientModel } from "../models/ingredient.model";
+import { ingredientTypes } from "../shared/constants";
+import { IngredientType } from "../types/ingredient.type";
 
 export const getAllIngredients = asyncHandler(async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = 21;
+  const skip = (page - 1) * limit;
+  const filter: Record<string, any> = {};
+  if (req.query.search) {
+    const search = req.query.search;
+    filter["$or"] = [{ name: { $regex: search, $options: "i" } }];
+  }
+  if (req.query.type) {
+    if (!ingredientTypes.includes(req.query.type as IngredientType)) {
+      errorResponse({
+        res,
+        message: "Invalid ingredient type",
+        statusCode: 400,
+      });
+    }
+    filter.type = req.query.type;
+  }
   try {
-    const categories = await IngredientModel.find().sort({ createdAt: -1 });
+    const categories = await IngredientModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
     if (!categories || categories.length === 0) {
       errorResponse({
         res,
@@ -14,11 +34,20 @@ export const getAllIngredients = asyncHandler(async (req: Request, res: Response
       });
       return;
     }
-
+    const totalIngredients = await IngredientModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalIngredients / limit);
     successResponse({
       res,
       message: "Ingredients fetched successfully",
-      data: categories,
+      data: {
+        ingredients: categories,
+        pagination: {
+          page,
+          limit,
+          totalIngredients,
+          totalPages,
+        },
+      },
       statusCode: 200,
     });
     return;

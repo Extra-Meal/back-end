@@ -106,7 +106,7 @@ const addToCart = asyncHandler(async (req: Request, res: Response) => {
 // Function to remove an item from the cart
 const removeFromCart = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
-  const { productId } = req.body;
+  const { productId } = req.params;
 
   if (!userId) {
     errorResponse({
