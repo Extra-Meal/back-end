@@ -95,7 +95,10 @@ const getProductsTypeKit = asyncHandler(async (req: Request, res: Response) => {
       .limit(limit)
       .sort({ createdAt: -1 })
       .populate("ingredient")
-      .populate("meal");
+      .populate({
+        path: "meal",
+        populate: [{ path: "area" }, { path: "category" }],
+      });
     const totalProducts = await Product.countDocuments({ ...filter, type: "kit" });
     const totalPages = Math.ceil(totalProducts / limit);
     successResponse({
