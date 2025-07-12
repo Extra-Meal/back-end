@@ -21,6 +21,11 @@ router.post(
 // Route to clear the wishlist
 router.delete("/clear", authMiddleware, rolesMiddleware("user"), clearWishlist);
 // Route to remove an item from the wishlist
-router.delete("/:productId", authMiddleware, rolesMiddleware("user"), validate(wishlistItemSchema), removeFromWishlist);
+router.delete(
+  "/:productId",
+  authMiddleware,
+  rolesMiddleware("user"),
+  removeFromWishlist
+);
 
 export default router;
