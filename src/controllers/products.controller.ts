@@ -181,6 +181,7 @@ const getProductsTypeIngredient = asyncHandler(async (req: Request, res: Respons
 
 const getProductById = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
+  console.log("🚀 ~ getProductById ~ id:", id);
 
   if (!id) {
     errorResponse({
@@ -192,7 +193,12 @@ const getProductById = asyncHandler(async (req: Request, res: Response) => {
   }
 
   try {
-    const product = await Product.findById(id).populate("ingredient").populate("meal");
+    const product = await Product.findById(id)
+      .populate("ingredient")
+      .populate({
+        path: "meal",
+        populate: [{ path: "area" }, { path: "category" }, { path: "ingredients.ingredient" }],
+      });
     if (!product) {
       errorResponse({
         res,
