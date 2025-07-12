@@ -3,6 +3,10 @@ import { IUserModel } from "../types/user.type";
 import { comparePassword, hashPassword } from "../shared/hash";
 import { generateAccessToken } from "../shared/tokens";
 
+const cartItemSchema = new Schema({
+  product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+  quantity: { type: Number, default: 1 },
+});
 const userSchema = new Schema<IUserModel>(
   {
     avatar: { type: String, default: "https://res.cloudinary.com/dypwrrsyh/image/upload/v1749835815/3_i9epmg.png" },
@@ -18,7 +22,7 @@ const userSchema = new Schema<IUserModel>(
     isVerified: { type: Boolean, default: false },
     isGoogleUser: { type: Boolean, default: false },
 
-    cart: [{ type: Schema.Types.ObjectId, ref: "Product" }],
+    cart: [cartItemSchema],
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Product" }],
     lastLogin: { type: Date },
     isActive: { type: Boolean, default: true },

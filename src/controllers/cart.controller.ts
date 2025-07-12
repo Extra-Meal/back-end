@@ -36,7 +36,8 @@ const getCartItems = asyncHandler(async (req: Request, res: Response) => {
 // Function to add an item to the cart
 const addToCart = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
-  const { productId, quantity } = req.body;
+  const { product, quantity } = req.body.data;
+  console.log("🚀 ~ addToCart ~ product:", product);
 
   if (!userId) {
     errorResponse({
@@ -46,7 +47,7 @@ const addToCart = asyncHandler(async (req: Request, res: Response) => {
     });
     return;
   }
-  if (!productId) {
+  if (!product) {
     errorResponse({
       res,
       message: "You didn't select a product to add to the cart.",
@@ -65,7 +66,7 @@ const addToCart = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  const productExists = await Product.findById(productId);
+  const productExists = await Product.findById(product);
   if (!productExists) {
     errorResponse({
       res,
@@ -74,7 +75,7 @@ const addToCart = asyncHandler(async (req: Request, res: Response) => {
     });
     return;
   }
-  const productIndexInCart = user.cart.findIndex((item) => item.product.toString() === productId);
+  const productIndexInCart = user.cart.findIndex((item) => item.product.toString() === product);
 
   if (productIndexInCart !== -1) {
     if (quantity) user.cart[productIndexInCart].quantity += quantity;
@@ -87,10 +88,10 @@ const addToCart = asyncHandler(async (req: Request, res: Response) => {
     });
     return;
   } else {
-    user.cart.push({ product: productId, quantity: quantity || 1 }); // Default to 1 if no quantity specified
+    console.log("🚀 ~ addToCart ~ user.cart:", user.cart, product);
+    user.cart.push({ product, quantity: quantity || 1 }); // Default to 1 if no quantity specified
   }
 
-  user.cart.push(productId);
   await user.save();
 
   successResponse({
@@ -191,7 +192,7 @@ const clearCart = asyncHandler(async (req: Request, res: Response) => {
 // Function to update the quantity of an item in the cart
 const updateCartItemQuantity = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
-  const { productId, quantity } = req.body;
+  const { product, quantity } = req.body;
 
   if (!userId) {
     errorResponse({
@@ -201,7 +202,7 @@ const updateCartItemQuantity = asyncHandler(async (req: Request, res: Response) 
     });
     return;
   }
-  if (!productId || quantity === undefined) {
+  if (!product || quantity === undefined) {
     errorResponse({
       res,
       message: "You must provide a product ID and quantity to update the cart.",
@@ -220,7 +221,7 @@ const updateCartItemQuantity = asyncHandler(async (req: Request, res: Response) 
     return;
   }
 
-  const productIndexInCart = user.cart.findIndex((item) => item.product.toString() === productId);
+  const productIndexInCart = user.cart.findIndex((item) => item.product.toString() === product);
   if (productIndexInCart === -1) {
     errorResponse({
       res,
@@ -245,10 +246,4 @@ const updateCartItemQuantity = asyncHandler(async (req: Request, res: Response) 
   });
 });
 
-export {
-  getCartItems,
-  addToCart,
-  removeFromCart,
-  clearCart,
-  updateCartItemQuantity,
-};
+export { getCartItems, addToCart, removeFromCart, clearCart, updateCartItemQuantity };
