@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { errorResponse, successResponse } from "../shared/response";
 import { Product } from "../models/product.model";
+import { PipelineStage } from "mongoose";
 
 function filterProducts(query: Record<string, any>): Record<string, any> {
   const filter: Record<string, any> = {};
@@ -126,19 +127,31 @@ const getProductsTypeIngredient = asyncHandler(async (req: Request, res: Respons
   const limit = 20;
   const skip = (page - 1) * limit;
   const filter = filterProducts(req.query);
-  if (filter.type) {
-    delete filter.type;
+  filter.type = "ingredient";
+  const pipeline: PipelineStage[] = [
+    { $match: filter },
+    {
+      $lookup: {
+        from: "ingredients",
+        localField: "ingredient",
+        foreignField: "_id",
+        as: "ingredient",
+      },
+    },
+    { $unwind: "$ingredient" },
+  ];
+  if (req.query.ingredientType) {
+    pipeline.push({
+      $match: { "ingredient.type": req.query.ingredientType },
+    });
   }
-
   try {
-    const products = await Product.find({ ...filter, type: "ingredient" })
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 })
-      .populate("ingredient")
-      .populate("meal");
-    const totalProducts = await Product.countDocuments({ ...filter, type: "ingredient" });
-    const totalPages = Math.ceil(totalProducts / limit);
+    const totalProducts = await Product.aggregate([...pipeline, { $count: "total" }]);
+
+    pipeline.push({ $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: limit });
+    const products = await Product.aggregate(pipeline);
+
+    const totalPages = Math.ceil((totalProducts[0].total || 0) / limit);
     successResponse({
       res,
       message: "Ingredient products fetched successfully",
@@ -148,7 +161,7 @@ const getProductsTypeIngredient = asyncHandler(async (req: Request, res: Respons
           page,
           limit,
           totalPages,
-          totalProducts,
+          totalProducts: totalProducts[0].total || 0,
         },
       },
       statusCode: 200,
