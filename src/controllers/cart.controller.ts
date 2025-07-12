@@ -16,7 +16,13 @@ const getCartItems = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  const user = await User.findById(userId).populate("cart.product");
+  const user = await User.findById(userId).populate({
+    path: "cart.product",
+    populate: [
+      { path: "ingredient" },
+      { path: "meal", populate: [{ path: "area" }, { path: "category" }, { path: "ingredients.ingredient" }] },
+    ],
+  });
   if (!user) {
     errorResponse({
       res,
@@ -192,7 +198,7 @@ const clearCart = asyncHandler(async (req: Request, res: Response) => {
 // Function to update the quantity of an item in the cart
 const updateCartItemQuantity = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
-  const { product, quantity } = req.body;
+  const { product, quantity } = req.body.data;
 
   if (!userId) {
     errorResponse({
