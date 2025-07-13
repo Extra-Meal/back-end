@@ -18,14 +18,22 @@ const uploader = createUploadMiddleware("category");
 router.get("/", getAllCategories);
 router.post(
   "/",
-
+  authMiddleware,
+  rolesMiddleware("admin"),
   uploader.single("thumbnail"),
   validate(categorySchema.omit({ thumbnail: true })),
   createCategory
 );
 router.get("/name/:name", getCategoryByName);
 router.get("/:id", getCategoryById);
-router.patch("/:id", uploader.single("thumbnail"), validate(categorySchema.partial()), updateCategory);
-router.delete("/:id",  deleteCategory);
+router.patch(
+  "/:id",
+  authMiddleware,
+  rolesMiddleware("admin"),
+  uploader.single("thumbnail"),
+  validate(categorySchema.partial()),
+  updateCategory
+);
+router.delete("/:id", authMiddleware, rolesMiddleware("admin"), deleteCategory);
 
 export default router;

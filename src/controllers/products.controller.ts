@@ -6,6 +6,8 @@ import { PipelineStage } from "mongoose";
 import { Types } from "mongoose";
 import Meal from "../models/meal.model";
 import { IngredientModel } from "../models/ingredient.model";
+import { z } from "zod";
+import { productTypeIngredientSchema } from "../Schemas/product.schema";
 
 function filterProducts(query: Record<string, any>): Record<string, any> {
   const filter: Record<string, any> = {};
@@ -154,7 +156,7 @@ const getProductsTypeIngredient = asyncHandler(async (req: Request, res: Respons
   try {
     const totalProducts = await Product.aggregate([...pipeline, { $count: "total" }]);
 
-    pipeline.push({ $sort: { createdAt: -1 } }, { $skip: skip }, { $limit: limit });
+    pipeline.push({ $sort: { createdAt: 1 } }, { $skip: skip }, { $limit: limit });
     const products = await Product.aggregate(pipeline);
 
     const totalPages = Math.ceil((totalProducts[0].total || 0) / limit);
@@ -467,6 +469,56 @@ const createProduct = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
+const createProductTypeIngredient = asyncHandler(async (req: Request, res: Response) => {
+  const data: z.infer<typeof productTypeIngredientSchema> = req.body;
+  const image = req.file?.path;
+
+  if (!data.name || !data.type || !data.price) {
+    errorResponse({
+      res,
+      message: "Missing required product fields (name, type, or price)",
+      statusCode: 400,
+    });
+    return;
+  }
+
+  try {
+    const newIngredient = new IngredientModel({
+      name: data.name,
+      description: data.description,
+      type: data.type,
+    });
+    const savedIngredient = await newIngredient.save();
+
+    const newProduct = new Product({
+      name: data.name,
+      type: "ingredient",
+      ingredient: savedIngredient._id,
+      price: data.price,
+      stock: data.stock ?? 0,
+      image: image,
+    });
+
+    const savedProduct = await newProduct.save();
+
+    successResponse({
+      res,
+      message: "Product created successfully",
+      data: savedProduct,
+      statusCode: 201,
+    });
+    return;
+  } catch (error) {
+    console.error("Error creating product:", error);
+    errorResponse({
+      res,
+      message: "Error creating product",
+      statusCode: 500,
+    });
+    return;
+  }
+});
+
 const updateProduct = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const {
@@ -634,6 +686,7 @@ export {
   getProductById,
   getProductsByName,
   getProductTypeIngredientById,
+  createProductTypeIngredient,
   createProduct,
   updateProduct,
   deleteProduct,

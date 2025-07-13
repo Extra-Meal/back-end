@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { MealInputSchema } from "./meal.schema";
+import { IngredientSchema } from "./ingredient.schema";
+import { ingredientTypes } from "../shared/constants";
 
 export const productSchema = z.object({
   name: z.string().min(1),
@@ -15,4 +17,20 @@ export const productSchema = z.object({
   discount: z.number().default(0), // percent or absolute
   ratingAverage: z.number().default(0),
   ratingCount: z.number().default(0),
+});
+
+export const productTypeIngredientSchema = z.object({
+  name: z.string().min(1),
+  description: z.string(),
+  type: z.enum(ingredientTypes),
+  price: z
+    .string()
+    .transform((val) => parseFloat(val))
+    .refine((val) => val >= 0, {
+      message: "Price must be a non-negative number",
+    }),
+  stock: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 0)),
 });
