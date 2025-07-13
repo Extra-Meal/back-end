@@ -1,29 +1,25 @@
-import { Request, Response } from 'express';
-import asyncHandler from 'express-async-handler';
-import Stripe from 'stripe';
+import { Request, Response } from "express";
+import asyncHandler from "express-async-handler";
+import Stripe from "stripe";
 
-import stripe from '../config/stripe';
-import config from '../config/config';
-import Order from '../models/order.model';
-import { Product } from '../models/product.model';
-import User from '../models/user.model';
-import { successResponse, errorResponse } from '../shared/response';
-import { 
-  CreatePaymentIntentInput, 
-  CreateCheckoutSessionInput, 
-  ConfirmPaymentInput 
-} from '../Schemas/payment.schema';
+import stripe from "../config/stripe";
+import config from "../config/config";
+import Order from "../models/order.model";
+import { Product } from "../models/product.model";
+import User from "../models/user.model";
+import { successResponse, errorResponse } from "../shared/response";
+import { CreatePaymentIntentInput, CreateCheckoutSessionInput, ConfirmPaymentInput } from "../Schemas/payment.schema";
 
 // Create Payment Intent for direct payment
 export const createPaymentIntent = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { amount, currency = 'usd', metadata } = req.body as CreatePaymentIntentInput;
+    const { amount, currency = "usd", metadata } = req.body as CreatePaymentIntentInput;
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
       currency,
       metadata: {
-        userId: req.user?._id?.toString() || '',
+        userId: req.user?._id?.toString() || "",
         ...metadata,
       },
       automatic_payment_methods: {
@@ -37,14 +33,14 @@ export const createPaymentIntent = asyncHandler(async (req: Request, res: Respon
         client_secret: paymentIntent.client_secret,
         payment_intent_id: paymentIntent.id,
       },
-      message: 'Payment intent created successfully',
+      message: "Payment intent created successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Create payment intent error:', error);
+    console.error("Create payment intent error:", error);
     errorResponse({
       res,
-      message: 'Failed to create payment intent',
+      message: "Failed to create payment intent",
       statusCode: 500,
     });
   }
@@ -57,24 +53,24 @@ export const createCheckoutSession = asyncHandler(async (req: Request, res: Resp
     const userId = req.user?._id?.toString();
 
     // Validate products exist and get current prices
-    const productIds = items.map(item => item.product_id);
+    const productIds = items.map((item) => item.product_id);
     const products = await Product.find({ _id: { $in: productIds } });
 
     if (products.length !== items.length) {
       errorResponse({
         res,
-        message: 'One or more products not found',
+        message: "One or more products not found",
         statusCode: 404,
       });
       return;
     }
 
     // Create line items for Stripe
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map(item => {
-      const product = products.find(p => p._id?.toString() === item.product_id);
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item) => {
+      const product = products.find((p) => p._id?.toString() === item.product_id);
       return {
         price_data: {
-          currency: 'usd',
+          currency: "usd",
           product_data: {
             name: item.name,
             description: item.description,
@@ -88,14 +84,14 @@ export const createCheckoutSession = asyncHandler(async (req: Request, res: Resp
 
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: ["card"],
       line_items: lineItems,
-      mode: 'payment',
+      mode: "payment",
       success_url: success_url || `${config.client_url}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancel_url || `${config.client_url}/payment/cancel`,
       customer_email,
       metadata: {
-        userId: userId || '',
+        userId: userId || "",
         items: JSON.stringify(items),
         ...metadata,
       },
@@ -107,14 +103,14 @@ export const createCheckoutSession = asyncHandler(async (req: Request, res: Resp
         session_id: session.id,
         url: session.url,
       },
-      message: 'Checkout session created successfully',
+      message: "Checkout session created successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Create checkout session error:', error);
+    console.error("Create checkout session error:", error);
     errorResponse({
       res,
-      message: 'Failed to create checkout session',
+      message: "Failed to create checkout session",
       statusCode: 500,
     });
   }
@@ -136,14 +132,14 @@ export const getPaymentIntent = asyncHandler(async (req: Request, res: Response)
         status: paymentIntent.status,
         metadata: paymentIntent.metadata,
       },
-      message: 'Payment intent retrieved successfully',
+      message: "Payment intent retrieved successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Get payment intent error:', error);
+    console.error("Get payment intent error:", error);
     errorResponse({
       res,
-      message: 'Failed to retrieve payment intent',
+      message: "Failed to retrieve payment intent",
       statusCode: 500,
     });
   }
@@ -155,7 +151,7 @@ export const getCheckoutSession = asyncHandler(async (req: Request, res: Respons
     const { session_id } = req.params;
 
     const session = await stripe.checkout.sessions.retrieve(session_id, {
-      expand: ['line_items'],
+      expand: ["line_items"],
     });
 
     successResponse({
@@ -169,14 +165,14 @@ export const getCheckoutSession = asyncHandler(async (req: Request, res: Respons
         metadata: session.metadata,
         line_items: session.line_items,
       },
-      message: 'Checkout session retrieved successfully',
+      message: "Checkout session retrieved successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Get checkout session error:', error);
+    console.error("Get checkout session error:", error);
     errorResponse({
       res,
-      message: 'Failed to retrieve checkout session',
+      message: "Failed to retrieve checkout session",
       statusCode: 500,
     });
   }
@@ -190,10 +186,10 @@ export const confirmPayment = asyncHandler(async (req: Request, res: Response) =
     // Retrieve payment intent to verify payment
     const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
 
-    if (paymentIntent.status !== 'succeeded') {
+    if (paymentIntent.status !== "succeeded") {
       errorResponse({
         res,
-        message: 'Payment not completed',
+        message: "Payment not completed",
         statusCode: 400,
       });
       return;
@@ -205,8 +201,8 @@ export const confirmPayment = asyncHandler(async (req: Request, res: Response) =
       {
         isPaid: true,
         paidAt: new Date(),
-        paymentMethod: 'credit_card',
-        status: 'paid',
+        paymentMethod: "credit_card",
+        status: "paid",
       },
       { new: true }
     );
@@ -214,7 +210,7 @@ export const confirmPayment = asyncHandler(async (req: Request, res: Response) =
     if (!order) {
       errorResponse({
         res,
-        message: 'Order not found',
+        message: "Order not found",
         statusCode: 404,
       });
       return;
@@ -223,14 +219,14 @@ export const confirmPayment = asyncHandler(async (req: Request, res: Response) =
     successResponse({
       res,
       data: order,
-      message: 'Payment confirmed and order updated successfully',
+      message: "Payment confirmed and order updated successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Confirm payment error:', error);
+    console.error("Confirm payment error:", error);
     errorResponse({
       res,
-      message: 'Failed to confirm payment',
+      message: "Failed to confirm payment",
       statusCode: 500,
     });
   }
@@ -238,21 +234,17 @@ export const confirmPayment = asyncHandler(async (req: Request, res: Response) =
 
 // Webhook handler for Stripe events
 export const handleWebhook = asyncHandler(async (req: Request, res: Response) => {
-  const sig = req.headers['stripe-signature'] as string;
+  const sig = req.headers["stripe-signature"] as string;
   let event: Stripe.Event;
 
   try {
     // Verify webhook signature
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET || ''
-    );
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET || "");
   } catch (error) {
-    console.error('Webhook signature verification failed:', error);
+    console.error("Webhook signature verification failed:", error);
     errorResponse({
       res,
-      message: 'Webhook signature verification failed',
+      message: "Webhook signature verification failed",
       statusCode: 400,
     });
     return;
@@ -261,30 +253,30 @@ export const handleWebhook = asyncHandler(async (req: Request, res: Response) =>
   try {
     // Handle different event types
     switch (event.type) {
-      case 'payment_intent.succeeded': {
+      case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log('Payment succeeded:', paymentIntent.id);
-        
+        console.log("Payment succeeded:", paymentIntent.id);
+
         // Update order if metadata contains order info
         if (paymentIntent.metadata.orderId) {
           await Order.findByIdAndUpdate(paymentIntent.metadata.orderId, {
             isPaid: true,
             paidAt: new Date(),
-            paymentMethod: 'credit_card',
+            paymentMethod: "credit_card",
           });
         }
         break;
       }
 
-      case 'checkout.session.completed': {
+      case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        console.log('Checkout session completed:', session.id);
-        
+        console.log("Checkout session completed:", session.id);
+
         // Handle successful checkout session
         if (session.metadata?.userId && session.metadata?.items) {
           const items = JSON.parse(session.metadata.items);
           const userId = session.metadata.userId;
-          
+
           // Create order from checkout session
           const order = new Order({
             user_id: userId,
@@ -296,23 +288,23 @@ export const handleWebhook = asyncHandler(async (req: Request, res: Response) =>
             total: (session.amount_total || 0) / 100,
             isPaid: true,
             paidAt: new Date(),
-            paymentMethod: 'credit_card',
-            status: 'paid',
+            paymentMethod: "credit_card",
+            status: "paid",
           });
-          
+
           await order.save();
         }
         break;
       }
 
-      case 'payment_intent.payment_failed': {
+      case "payment_intent.payment_failed": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        console.log('Payment failed:', paymentIntent.id);
-        
+        console.log("Payment failed:", paymentIntent.id);
+
         // Handle failed payment
         if (paymentIntent.metadata.orderId) {
           await Order.findByIdAndUpdate(paymentIntent.metadata.orderId, {
-            status: 'cancelled',
+            status: "cancelled",
           });
         }
         break;
@@ -325,14 +317,14 @@ export const handleWebhook = asyncHandler(async (req: Request, res: Response) =>
     successResponse({
       res,
       data: { received: true },
-      message: 'Webhook processed successfully',
+      message: "Webhook processed successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Webhook processing error:', error);
+    console.error("Webhook processing error:", error);
     errorResponse({
       res,
-      message: 'Webhook processing failed',
+      message: "Webhook processing failed",
       statusCode: 500,
     });
   }
@@ -342,13 +334,13 @@ export const handleWebhook = asyncHandler(async (req: Request, res: Response) =>
 export const getPaymentMethods = asyncHandler(async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id?.toString();
-    
+
     // Find user's Stripe customer ID
     const user = await User.findById(userId);
     if (!user || !user.stripeCustomerId) {
       errorResponse({
         res,
-        message: 'User or Stripe customer not found',
+        message: "User or Stripe customer not found",
         statusCode: 404,
       });
       return;
@@ -356,20 +348,20 @@ export const getPaymentMethods = asyncHandler(async (req: Request, res: Response
 
     const paymentMethods = await stripe.paymentMethods.list({
       customer: user.stripeCustomerId,
-      type: 'card',
+      type: "card",
     });
 
     successResponse({
       res,
       data: paymentMethods.data,
-      message: 'Payment methods retrieved successfully',
+      message: "Payment methods retrieved successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Get payment methods error:', error);
+    console.error("Get payment methods error:", error);
     errorResponse({
       res,
-      message: 'Failed to retrieve payment methods',
+      message: "Failed to retrieve payment methods",
       statusCode: 500,
     });
   }
@@ -379,13 +371,13 @@ export const getPaymentMethods = asyncHandler(async (req: Request, res: Response
 export const createSetupIntent = asyncHandler(async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id?.toString();
-    
+
     // Find or create Stripe customer
     let user = await User.findById(userId);
     if (!user) {
       errorResponse({
         res,
-        message: 'User not found',
+        message: "User not found",
         statusCode: 404,
       });
       return;
@@ -395,17 +387,17 @@ export const createSetupIntent = asyncHandler(async (req: Request, res: Response
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email || undefined,
-        metadata: { userId: userId || '' },
+        metadata: { userId: userId || "" },
       });
       customerId = customer.id;
-      
+
       // Update user with Stripe customer ID
       await User.findByIdAndUpdate(userId, { stripeCustomerId: customerId });
     }
 
     const setupIntent = await stripe.setupIntents.create({
       customer: customerId,
-      payment_method_types: ['card'],
+      payment_method_types: ["card"],
     });
 
     successResponse({
@@ -414,14 +406,14 @@ export const createSetupIntent = asyncHandler(async (req: Request, res: Response
         client_secret: setupIntent.client_secret,
         setup_intent_id: setupIntent.id,
       },
-      message: 'Setup intent created successfully',
+      message: "Setup intent created successfully",
       statusCode: 200,
     });
   } catch (error) {
-    console.error('Create setup intent error:', error);
+    console.error("Create setup intent error:", error);
     errorResponse({
       res,
-      message: 'Failed to create setup intent',
+      message: "Failed to create setup intent",
       statusCode: 500,
     });
   }
@@ -434,7 +426,7 @@ export const getPublishableKey = asyncHandler(async (_req: Request, res: Respons
     data: {
       publishable_key: config.STRIPE_PUBLISHABLE_KEY,
     },
-    message: 'Publishable key retrieved successfully',
+    message: "Publishable key retrieved successfully",
     statusCode: 200,
   });
 });

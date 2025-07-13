@@ -1,25 +1,30 @@
 # Stripe Integration Documentation
 
 ## Overview
+
 This document describes the Stripe payment integration implemented in the backend API.
 
 ## Features Implemented
 
 ### 1. Payment Intents
+
 - Create payment intents for one-time payments
 - Retrieve payment intent details
 - Support for multiple currencies
 
 ### 2. Checkout Sessions
+
 - Create hosted checkout sessions
 - Support for multiple line items
 - Automatic order creation on successful payment
 
 ### 3. Payment Methods
+
 - Save and retrieve customer payment methods
 - Create setup intents for saving cards
 
 ### 4. Webhooks
+
 - Handle Stripe webhook events
 - Automatic order status updates
 - Payment confirmation handling
@@ -27,15 +32,19 @@ This document describes the Stripe payment integration implemented in the backen
 ## API Endpoints
 
 ### Authentication Required
+
 All endpoints except `/config` and `/webhook` require authentication.
 
 ### Payment Intent Endpoints
 
 #### Create Payment Intent
+
 ```
 POST /api/payment/payment-intent
 ```
+
 **Body:**
+
 ```json
 {
   "amount": 29.99,
@@ -47,6 +56,7 @@ POST /api/payment/payment-intent
 ```
 
 #### Get Payment Intent
+
 ```
 GET /api/payment/payment-intent/:payment_intent_id
 ```
@@ -54,10 +64,13 @@ GET /api/payment/payment-intent/:payment_intent_id
 ### Checkout Session Endpoints
 
 #### Create Checkout Session
+
 ```
 POST /api/payment/checkout-session
 ```
+
 **Body:**
+
 ```json
 {
   "items": [
@@ -77,6 +90,7 @@ POST /api/payment/checkout-session
 ```
 
 #### Get Checkout Session
+
 ```
 GET /api/payment/checkout-session/:session_id
 ```
@@ -84,10 +98,13 @@ GET /api/payment/checkout-session/:session_id
 ### Payment Confirmation
 
 #### Confirm Payment
+
 ```
 POST /api/payment/confirm-payment
 ```
+
 **Body:**
+
 ```json
 {
   "payment_intent_id": "pi_xxxxx",
@@ -98,11 +115,13 @@ POST /api/payment/confirm-payment
 ### Payment Methods
 
 #### Get Payment Methods
+
 ```
 GET /api/payment/payment-methods
 ```
 
 #### Create Setup Intent
+
 ```
 POST /api/payment/setup-intent
 ```
@@ -110,14 +129,17 @@ POST /api/payment/setup-intent
 ### Configuration
 
 #### Get Publishable Key
+
 ```
 GET /api/payment/config
 ```
 
 ### Webhook
+
 ```
 POST /api/payment/webhook
 ```
+
 **Note:** This endpoint receives raw body data for signature verification.
 
 ## Frontend Integration Examples
@@ -128,46 +150,46 @@ POST /api/payment/webhook
 // Install Stripe.js
 // npm install @stripe/stripe-js
 
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
 
 // Initialize Stripe
-const stripePromise = loadStripe('your_publishable_key');
+const stripePromise = loadStripe("your_publishable_key");
 
 // Create payment intent
 const createPaymentIntent = async (amount) => {
-  const response = await fetch('/api/payment/payment-intent', {
-    method: 'POST',
+  const response = await fetch("/api/payment/payment-intent", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       amount: amount,
-      currency: 'usd'
-    })
+      currency: "usd",
+    }),
   });
-  
+
   return await response.json();
 };
 
 // Confirm payment
 const confirmPayment = async (clientSecret) => {
   const stripe = await stripePromise;
-  
+
   const result = await stripe.confirmCardPayment(clientSecret, {
     payment_method: {
       card: cardElement,
       billing_details: {
-        name: 'Customer Name',
-        email: 'customer@example.com'
-      }
-    }
+        name: "Customer Name",
+        email: "customer@example.com",
+      },
+    },
   });
-  
+
   if (result.error) {
-    console.error('Payment failed:', result.error);
+    console.error("Payment failed:", result.error);
   } else {
-    console.log('Payment succeeded:', result.paymentIntent);
+    console.log("Payment succeeded:", result.paymentIntent);
   }
 };
 ```
@@ -177,29 +199,29 @@ const confirmPayment = async (clientSecret) => {
 ```javascript
 // Create checkout session and redirect
 const createCheckoutSession = async (items) => {
-  const response = await fetch('/api/payment/checkout-session', {
-    method: 'POST',
+  const response = await fetch("/api/payment/checkout-session", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       items: items,
-      success_url: 'https://yoursite.com/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://yoursite.com/cancel'
-    })
+      success_url: "https://yoursite.com/success?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: "https://yoursite.com/cancel",
+    }),
   });
-  
+
   const session = await response.json();
-  
+
   // Redirect to Stripe Checkout
   const stripe = await stripePromise;
   const result = await stripe.redirectToCheckout({
-    sessionId: session.data.session_id
+    sessionId: session.data.session_id,
   });
-  
+
   if (result.error) {
-    console.error('Redirect failed:', result.error);
+    console.error("Redirect failed:", result.error);
   }
 };
 ```
@@ -235,9 +257,11 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ## Database Schema Updates
 
 ### User Model
+
 - Added `stripeCustomerId` field to store Stripe customer ID
 
 ### Order Model
+
 - Added `stripePaymentIntentId` field
 - Added `stripeSessionId` field
 - Updated status enum to include "paid"
@@ -280,6 +304,7 @@ All endpoints return consistent error responses:
 ## Support
 
 For issues with the Stripe integration:
+
 1. Check Stripe Dashboard logs
 2. Review server logs for webhook processing
 3. Verify environment variables are correctly set
