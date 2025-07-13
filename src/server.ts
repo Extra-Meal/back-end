@@ -37,7 +37,7 @@ app.use("/api/payment/webhook", express.raw({ type: "application/json" }));
 
 app.use(express.json());
 
-app.use("/api/auth", ()=>console.log("test"), AuthRouter);
+app.use("/api/auth", AuthRouter);
 app.use("/api/areas", AreaRouter);
 app.use("/api/category", CategoryRouter);
 app.use("/api/users", UserRouter);
