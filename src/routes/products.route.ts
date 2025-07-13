@@ -10,12 +10,14 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductTypeIngredientById,
 } from "../controllers/products.controller";
 const router = express.Router();
 
 router.get("/", getAllProducts);
 router.get("/kits", getProductsTypeKit);
 router.get("/ingredients", getProductsTypeIngredient);
+router.get("/ingredients/:id", getProductTypeIngredientById);
 router.get("/name/:name", getProductsByName);
 router.get("/:id", getProductById);
 router.post("/", validate(productSchema), createProduct);

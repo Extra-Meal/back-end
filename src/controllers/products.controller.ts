@@ -223,6 +223,53 @@ const getProductById = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 });
+const getProductTypeIngredientById = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  console.log("🚀 ~ getProductById ~ id:", id);
+
+  if (!id) {
+    errorResponse({
+      res,
+      message: "No product ID provided",
+      statusCode: 400,
+    });
+    return;
+  }
+
+  try {
+    const product = await Product.findOne({
+      type: "ingredient",
+      ingredient: id,
+    })
+      .populate("ingredient")
+      .populate({
+        path: "meal",
+        populate: [{ path: "area" }, { path: "category" }, { path: "ingredients.ingredient" }],
+      });
+    if (!product) {
+      errorResponse({
+        res,
+        message: "Product not found",
+        statusCode: 404,
+      });
+      return;
+    }
+    successResponse({
+      res,
+      message: "Product fetched successfully",
+      data: product,
+      statusCode: 200,
+    });
+    return;
+  } catch (error) {
+    errorResponse({
+      res,
+      message: "Error fetching product",
+      statusCode: 500,
+    });
+    return;
+  }
+});
 
 const getProductsByName = asyncHandler(async (req: Request, res: Response) => {
   const { name } = req.query;
@@ -410,6 +457,7 @@ export {
   getProductsTypeIngredient,
   getProductById,
   getProductsByName,
+  getProductTypeIngredientById,
   createProduct,
   updateProduct,
   deleteProduct,
