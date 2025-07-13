@@ -14,6 +14,7 @@ import {
   createProductTypeIngredient,
 } from "../controllers/products.controller";
 import { createUploadMiddleware } from "../middlewares/uploudImageGenerator";
+import { authMiddleware } from "../middlewares/auth";
 const router = express.Router();
 const ingredientUploader = createUploadMiddleware("ingredient");
 const kitUploader = createUploadMiddleware("kit");
@@ -23,7 +24,7 @@ router.get("/kits", getProductsTypeKit);
 router.get("/ingredients", getProductsTypeIngredient);
 router.get("/ingredients/:id", getProductTypeIngredientById);
 router.get("/name/:name", getProductsByName);
-router.post("/", validate(productSchema), createProduct);
+router.post("/", authMiddleware, createProduct);
 router.post(
   "/ingredients",
   ingredientUploader.single("image"),
