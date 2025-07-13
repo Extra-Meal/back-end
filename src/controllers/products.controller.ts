@@ -3,6 +3,9 @@ import asyncHandler from "express-async-handler";
 import { errorResponse, successResponse } from "../shared/response";
 import { Product } from "../models/product.model";
 import { PipelineStage } from "mongoose";
+import { Types } from "mongoose";
+import Meal from "../models/meal.model";
+import { IngredientModel } from "../models/ingredient.model";
 
 function filterProducts(query: Record<string, any>): Record<string, any> {
   const filter: Record<string, any> = {};
@@ -263,38 +266,145 @@ const getProductsByName = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
-const createProduct = asyncHandler(async (req: Request, res: Response) => {
-  const { name, type, ingredient, meal, price, stock, image, visible } = req.body;
+export type MealIngredientInput = {
+  ingredient: string;
+  measure: string;
+};
 
-  if (!name || !type || (type === "ingredient" && !ingredient) || (type === "kit" && !meal) || !price) {
+export type MealInput = {
+  name: string;
+  thumbnail?: string;
+  category: string;
+  area: string;
+  instructions?: string;
+  tags?: string[];
+  youtube?: string;
+  source?: string;
+  ingredients: MealIngredientInput[];
+  preparationTime?: number;
+  difficulty?: "easy" | "medium" | "hard";
+};
+export type CreateProductInput = {
+  name: string;
+  type: "ingredient" | "kit";
+  price: number;
+  stock?: number;
+  image?: string;
+  visible?: boolean;
+  sold?: number;
+  views?: number;
+  discount?: number;
+  ratingAverage?: number;
+  ratingCount?: number;
+  ingredient?: string;
+  meal?: MealInput | undefined;
+};
+
+const createProduct = asyncHandler(async (req: Request, res: Response) => {
+  const { data } = req.body;
+  const {
+    name,
+    type,
+    price,
+    stock,
+    image,
+    visible,
+    sold,
+    views,
+    discount,
+    ratingAverage,
+    ratingCount,
+    ingredient,
+    meal,
+  }: CreateProductInput & { ingredient?: string } = data;
+
+  console.log(req.body);
+
+  if (!name || !type || !price) {
     errorResponse({
       res,
-      message: "Missing required fields",
+      message: "Missing required product fields (name, type, or price)",
       statusCode: 400,
     });
     return;
   }
 
   try {
+    let ingredientId: string | undefined;
+    let mealId: string | undefined;
+
+    if (type === "ingredient") {
+      if (!ingredient) {
+        errorResponse({
+          res,
+          message: "Missing ingredient reference for ingredient-type product",
+          statusCode: 400,
+        });
+        return;
+      }
+
+      const existingIngredient = await IngredientModel.findById(ingredient);
+      if (!existingIngredient) {
+        errorResponse({
+          res,
+          message: "Provided ingredient not found",
+          statusCode: 404,
+        });
+        return;
+      }
+
+      ingredientId = existingIngredient._id.toString();
+    }
+
+    if (type === "kit") {
+      if (!meal) {
+        errorResponse({
+          res,
+          message: "Missing meal data for kit-type product",
+          statusCode: 400,
+        });
+        return;
+      }
+      console.log(meal);
+      const newMeal = new Meal(meal);
+      const savedMeal = await newMeal.save();
+      console.log("Saved Meal:", savedMeal);
+      mealId = (savedMeal._id as string | Types.ObjectId).toString();
+    }
+
     const newProduct = new Product({
       name,
       type,
-      ingredient: type === "ingredient" ? ingredient : undefined,
-      meal: type === "kit" ? meal : undefined,
+      ingredient: ingredientId,
+      meal: mealId,
       price,
-      stock: stock || 0,
+      stock: stock ?? 0,
       image,
-      visible: visible !== undefined ? visible : true,
+      visible: visible ?? true,
+      sold: sold ?? 0,
+      views: views ?? 0,
+      discount: discount ?? 0,
+      ratingAverage: ratingAverage ?? 0,
+      ratingCount: ratingCount ?? 0,
     });
 
     const savedProduct = await newProduct.save();
+
+    if (mealId) {
+      await Meal.findByIdAndUpdate(mealId, {
+        kitProduct: savedProduct._id,
+      });
+    }
+
     successResponse({
       res,
       message: "Product created successfully",
       data: savedProduct,
       statusCode: 201,
     });
+    return;
   } catch (error) {
+    console.error("Error creating product:", error);
     errorResponse({
       res,
       message: "Error creating product",
@@ -306,7 +416,21 @@ const createProduct = asyncHandler(async (req: Request, res: Response) => {
 
 const updateProduct = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, type, ingredient, meal, price, stock, image, visible } = req.body;
+  const {
+    name,
+    type,
+    ingredient,
+    meal,
+    price,
+    stock,
+    image,
+    visible,
+    sold,
+    views,
+    discount,
+    ratingAverage,
+    ratingCount,
+  }: Partial<CreateProductInput> = req.body;
 
   if (!id) {
     errorResponse({
@@ -318,8 +442,8 @@ const updateProduct = asyncHandler(async (req: Request, res: Response) => {
   }
 
   try {
-    const product = await Product.findById(id);
-    if (!product) {
+    const existingProduct = await Product.findById(id);
+    if (!existingProduct) {
       errorResponse({
         res,
         message: "Product not found",
@@ -327,22 +451,69 @@ const updateProduct = asyncHandler(async (req: Request, res: Response) => {
       });
       return;
     }
+    let ingredientId: Types.ObjectId | string | undefined;
+    let mealId: Types.ObjectId | undefined;
+
+    if (type === "ingredient") {
+      if (!ingredient) {
+        errorResponse({
+          res,
+          message: "Missing ingredient reference for ingredient-type product",
+          statusCode: 400,
+        });
+        return;
+      }
+
+      const existingIngredient = await IngredientModel.findById(ingredient);
+      if (!existingIngredient) {
+        errorResponse({
+          res,
+          message: "Provided ingredient not found",
+          statusCode: 404,
+        });
+        return;
+      }
+
+      ingredientId = existingIngredient._id.toString();
+      mealId = undefined;
+    }
+
+    if (type === "kit") {
+      if (meal) {
+        const newMeal = new Meal(meal);
+        const savedMeal = await newMeal.save();
+        mealId = savedMeal._id as Types.ObjectId;
+
+        await Meal.findByIdAndUpdate(mealId, {
+          kitProduct: existingProduct._id,
+        });
+
+        ingredientId = undefined;
+      }
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
       {
-        name: name || product.name,
-        type: type || product.type,
-        ingredient: type === "ingredient" ? ingredient || product.ingredient : product.ingredient,
-        meal: type === "kit" ? meal || product.meal : product.meal,
-        price: price || product.price,
-        stock: stock !== undefined ? stock : product.stock,
-        image: image || product.image,
-        visible: visible !== undefined ? visible : product.visible,
+        name: name ?? existingProduct.name,
+        type: type ?? existingProduct.type,
+        price: price ?? existingProduct.price,
+        stock: stock ?? existingProduct.stock,
+        image: image ?? existingProduct.image,
+        visible: visible ?? existingProduct.visible,
+        sold: sold ?? existingProduct.sold,
+        views: views ?? existingProduct.views,
+        discount: discount ?? existingProduct.discount,
+        ratingAverage: ratingAverage ?? existingProduct.ratingAverage,
+        ratingCount: ratingCount ?? existingProduct.ratingCount,
+        ingredient: ingredientId,
+        meal: mealId,
       },
       { new: true }
     )
       .populate("ingredient")
       .populate("meal");
+
     successResponse({
       res,
       message: "Product updated successfully",
@@ -350,12 +521,12 @@ const updateProduct = asyncHandler(async (req: Request, res: Response) => {
       statusCode: 200,
     });
   } catch (error) {
+    console.error("Error updating product:", error);
     errorResponse({
       res,
       message: "Error updating product",
       statusCode: 500,
     });
-    return;
   }
 });
 
@@ -381,20 +552,25 @@ const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
       });
       return;
     }
+
+    if (product.type === "kit" && product.meal) {
+      await Meal.findByIdAndDelete(product.meal);
+    }
+
     await Product.findByIdAndDelete(id);
+
     successResponse({
       res,
       message: "Product deleted successfully",
       statusCode: 200,
     });
-    return;
   } catch (error) {
+    console.error("Error deleting product:", error);
     errorResponse({
       res,
       message: "Error deleting product",
       statusCode: 500,
     });
-    return;
   }
 });
 
