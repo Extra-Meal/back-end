@@ -59,7 +59,7 @@ const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
-  const verificationToken = req.body;
+  const { verificationToken } = req.body;
 
   if (!verificationToken) {
     errorResponse({
@@ -145,7 +145,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
 const client = new OAuth2Client(config.google_client_id);
 const googleLogin = asyncHandler(async (req: Request, res: Response) => {
-  const code = req.body;
+  const { code } = req.body;
 
   if (!code) {
     errorResponse({
@@ -158,18 +158,37 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
 
   let ticket;
   try {
-    const { data } = await axios.post(
-      "https://oauth2.googleapis.com/token",
-      {
+    let idToken = null;
+
+    try {
+      console.log(
+        "Exchanging authorization code for tokens",
+        config.google_client_secret,
         code,
-        client_id: config.google_client_id,
-        client_secret: config.google_client_secret,
-        redirect_uri: "postmessage", //  used when the code is returned directly to your frontend app (no redirect).
-        grant_type: "authorization_code",
-      },
-      { headers: { "Content-Type": "application/json" } }
-    );
-    const idToken = data.id_token;
+        config.google_client_id
+      );
+      const { data } = await axios.post(
+        "https://oauth2.googleapis.com/token",
+        {
+          code,
+          client_id: config.google_client_id,
+          client_secret: config.google_client_secret,
+          redirect_uri: "postmessage", //  used when the code is returned directly to your frontend app (no redirect).
+          grant_type: "authorization_code",
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      idToken = data.id_token;
+    } catch (error) {
+      console.error("Error exchanging authorization code for tokens:", error);
+      errorResponse({
+        res,
+        message: "Failed to exchange authorization code for tokens",
+        statusCode: 400,
+      });
+      return;
+    }
+    console.log("🚀 ~ googleLogin ~ idToken:", idToken, config.google_client_id);
     if (!idToken) {
       errorResponse({
         res,
@@ -183,6 +202,7 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
       audience: config.google_client_id,
     });
   } catch (error) {
+    console.error("Error verifying Google ID token:");
     errorResponse({
       res,
       message: "Invalid Google ID token",
