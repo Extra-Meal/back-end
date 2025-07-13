@@ -15,6 +15,7 @@ import ReviewRouter from "./routes/review.route";
 import ProductRouter from "./routes/products.route";
 import ChatRouter from "./routes/chat.route";
 import DashboardRouter from "./routes/dashboard.route";
+import PaymentRouter from "./routes/payment.route";
 
 import { errorResponse } from "./shared/response";
 
@@ -29,8 +30,12 @@ const corsOptions: cors.CorsOptions = {
   credentials: true,
 };
 
-app.use(express.json());
 app.use(cors(corsOptions));
+
+// Stripe webhook needs raw body, so we handle it before express.json()
+app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+
+app.use(express.json());
 
 app.use("/api/auth", AuthRouter);
 app.use("/api/areas", AreaRouter);
@@ -44,6 +49,7 @@ app.use("/api/review", ReviewRouter);
 app.use("/api/products", ProductRouter);
 app.use("/api/chat", ChatRouter);
 app.use("/api/dashboard", DashboardRouter);
+app.use("/api/payment", PaymentRouter);
 
 // Health check route
 app.get("/", (req: Request, res: Response) => {

@@ -28,6 +28,7 @@ const userSchema = new Schema<IUserModel>(
     isActive: { type: Boolean, default: true },
     orderCount: { type: Number, default: 0 },
     totalSpent: { type: Number, default: 0 },
+    stripeCustomerId: { type: String },
   },
   { timestamps: true }
 );

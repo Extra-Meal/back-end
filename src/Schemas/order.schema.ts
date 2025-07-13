@@ -10,10 +10,12 @@ export const OrderSchema = z.object({
     })
   ),
   total: z.number().min(0),
-  status: z.enum(["pending", "shipped", "delivered", "cancelled"]),
-  paymentMethod: z.enum(["credit_card", "paypal", "cash"]),
+  status: z.enum(["pending", "paid", "shipped", "delivered", "cancelled"]),
+  paymentMethod: z.enum(["credit_card", "paypal", "cash", "stripe"]),
   isPaid: z.boolean(),
   paidAt: z.date().optional(),
   shippedAt: z.date().optional(),
   deliveredAt: z.date().optional(),
+  stripePaymentIntentId: z.string().optional(),
+  stripeSessionId: z.string().optional(),
 });

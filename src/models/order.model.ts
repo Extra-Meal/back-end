@@ -11,12 +11,14 @@ const orderSchema = new Schema<IOrderModel>(
       },
     ],
     total: { type: Number, required: true },
-    status: { type: String, enum: ["pending", "shipped", "delivered", "cancelled"], default: "pending" },
-    paymentMethod: { type: String, enum: ["credit_card", "paypal", "cash"], default: "cash" },
+    status: { type: String, enum: ["pending", "paid", "shipped", "delivered", "cancelled"], default: "pending" },
+    paymentMethod: { type: String, enum: ["credit_card", "paypal", "cash", "stripe"], default: "cash" },
     isPaid: { type: Boolean, default: false },
     paidAt: { type: Date },
     shippedAt: { type: Date },
     deliveredAt: { type: Date },
+    stripePaymentIntentId: { type: String },
+    stripeSessionId: { type: String },
   },
   { timestamps: true }
 );

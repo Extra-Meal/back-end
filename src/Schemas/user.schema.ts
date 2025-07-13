@@ -40,6 +40,7 @@ export const userSchema = z.object({
   isActive: z.boolean({ invalid_type_error: "isActive must be a boolean" }).optional().default(true),
   orderCount: z.number({ invalid_type_error: "Order count must be a number" }).optional().default(0),
   totalSpent: z.number({ invalid_type_error: "Total spent must be a number" }).optional().default(0),
+  stripeCustomerId: z.string({ invalid_type_error: "Stripe customer ID must be a string" }).optional(),
 });
 
 export const updateUserSchema = userSchema.partial().extend({

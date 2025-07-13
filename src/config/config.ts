@@ -19,6 +19,9 @@ interface Config {
   cloudinary_api_secret?: string;
   cloudinary_url?: string;
   gemini_api_key?: string;
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_PUBLISHABLE_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
 }
 
 const config: Config = {
@@ -38,6 +41,9 @@ const config: Config = {
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET || "",
   cloudinary_url: process.env.CLOUDINARY_URL,
   gemini_api_key: process.env.GEMINI_API_KEY || "",
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
+  STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || "",
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
 };
 
 export default config;
