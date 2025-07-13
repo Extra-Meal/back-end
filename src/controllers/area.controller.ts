@@ -36,7 +36,7 @@ const getAllAreas = asyncHandler(async (req: Request, res: Response) => {
 
 const createArea = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { name } = req.body.data;
+    const { name } = req.body;
 
     if (!name) {
       errorResponse({
@@ -123,7 +123,7 @@ const deleteArea = asyncHandler(async (req: Request, res: Response) => {
 const updateArea = asyncHandler(async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name } = req.body.data;
+    const { name } = req.body;
 
     if (!id) {
       errorResponse({

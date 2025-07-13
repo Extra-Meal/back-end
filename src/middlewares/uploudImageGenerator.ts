@@ -12,6 +12,7 @@ export function createUploadMiddleware(folderName: string) {
   });
 
   const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+    console.log("File received:", file);
     if (!file.mimetype.startsWith("image/")) {
       return cb(new Error("Only image files are allowed"));
     }

@@ -5,7 +5,7 @@ import { errorResponse, successResponse } from "../shared/response";
 const updateUser = asyncHandler(async (req, res) => {
   try {
     const userId = req.params.id;
-    const updateData = req.body.data;
+    const updateData = req.body;
 
     if (!userId || !updateData) {
       errorResponse({
@@ -255,7 +255,7 @@ const getMydata = asyncHandler(async (req, res) => {
 const updateUserRoles = asyncHandler(async (req, res) => {
   try {
     const userId = req.params.id;
-    const { roles } = req.body.data;
+    const { roles } = req.body;
 
     if (!userId) {
       errorResponse({

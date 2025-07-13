@@ -10,7 +10,7 @@ import { verifyEmailMessage } from "../shared/emails/mailTemplates";
 import { generateEmailVerificationToken } from "../shared/tokens";
 
 const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password } = req.body.data;
+  const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     errorResponse({
@@ -59,7 +59,7 @@ const registerNewUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
-  const verificationToken = req.body.data;
+  const verificationToken = req.body;
 
   if (!verificationToken) {
     errorResponse({
@@ -97,7 +97,7 @@ const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body.data;
+  const { email, password } = req.body;
   if (!email || !password) {
     errorResponse({
       res,
@@ -144,7 +144,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
 const client = new OAuth2Client(config.google_client_id);
 const googleLogin = asyncHandler(async (req: Request, res: Response) => {
-  const code = req.body.data;
+  const code = req.body;
 
   if (!code) {
     errorResponse({

@@ -42,7 +42,7 @@ const getCartItems = asyncHandler(async (req: Request, res: Response) => {
 // Function to add an item to the cart
 const addToCart = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
-  const { product, quantity } = req.body.data;
+  const { product, quantity } = req.body;
   console.log("🚀 ~ addToCart ~ product:", product);
 
   if (!userId) {
@@ -198,7 +198,7 @@ const clearCart = asyncHandler(async (req: Request, res: Response) => {
 // Function to update the quantity of an item in the cart
 const updateCartItemQuantity = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
-  const { product, quantity } = req.body.data;
+  const { product, quantity } = req.body;
 
   if (!userId) {
     errorResponse({

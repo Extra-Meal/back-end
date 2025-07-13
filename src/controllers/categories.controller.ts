@@ -34,7 +34,8 @@ const getAllCategories = asyncHandler(async (req: Request, res: Response) => {
 
 const createCategory = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { name, thumbnail, description } = req.body.data;
+    const { name, description } = req.body;
+    const thumbnail = req.file?.path;
 
     if (!name || !thumbnail || !description) {
       errorResponse({
@@ -120,7 +121,7 @@ const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
 const updateCategory = asyncHandler(async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, thumbnail, description } = req.body.data;
+    const { name, thumbnail, description } = req.body;
 
     if (!id) {
       errorResponse({

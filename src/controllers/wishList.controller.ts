@@ -37,7 +37,7 @@ const getWishlistItems = asyncHandler(async (req: Request, res: Response) => {
 // Function to add an item to the wishlist
 const addToWishlist = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?._id;
-  const { productId } = req.body.data;
+  const { productId } = req.body;
 
   if (!userId) {
     errorResponse({
